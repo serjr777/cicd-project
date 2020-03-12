@@ -1,0 +1,8 @@
+---
+- name: Install Java 8 on TEST_SERVERS (Jenkins' slaves)
+  hosts: TEST_SERVERS, PROD_SERVERS
+  become: yes 
+
+  tasks:
+  - name: Install Java (openjdk-8-jdk)
+    apt: name=openjdk-8-jdk state=latest

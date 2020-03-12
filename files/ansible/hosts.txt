@@ -1,0 +1,13 @@
+[TEST_SERVERS]
+Srv2  ansible_host=serj2.ddns.net
+
+[STAGING_SERVERS]
+Srv3  ansible_host=serj3.ddns.net
+
+[PROD_SERVERS]
+Prod1  ansible_host=serj4.ddns.net
+
+[ALL_SERVERS:children]
+TEST_SERVERS
+STAGING_SERVERS
+PROD_SERVERS

@@ -1,0 +1,27 @@
+---
+- name: Install Docker engine
+  hosts: TEST_SERVERS,STAGING_SERVERS,PROD_SERVERS
+  become: yes
+
+  tasks:
+  # ===== for Ubuntu only ======
+  - name: Install transport-https for Ubuntu
+    apt: name=apt-transport-https state=latest
+
+  - name: Install Docker apt repository key
+    apt_key: url=https://download.docker.com/linux/ubuntu/gpg state=present
+
+  - name: Configure the Docker repository on localhost
+    apt_repository: repo='deb https://download.docker.com/linux/ubuntu bionic stable' state=present
+
+  - name: Update apt and install docker-ce
+    apt: update_cache=yes name=docker-ce state=latest
+  
+  - name: Add user to docker group
+    user:
+      name: 'ubuntu'
+      groups: docker
+      append: yes
+    
+  - name: Unconditionally reboot the machine with all defaults
+    reboot:

@@ -1,0 +1,39 @@
+###################################################
+#             ---  UBUNTU ONLY  ---               #
+#  The playbook starts with  --ask-become-pass    #
+###################################################
+---
+- name: Install JENKINS on localhost
+  hosts: localhost
+  connection: local
+  become: yes 
+
+  tasks:
+  - name: Install jenkins apt repository key
+    apt_key: url=https://pkg.jenkins.io/debian-stable/jenkins.io.key state=present
+  
+  - name: Configure the jenkins repository on localhost
+    apt_repository: repo='deb https://pkg.jenkins.io/debian-stable binary/' state=present
+  
+  - name: Install Java (openjdk-8-jdk)
+    apt: name=openjdk-8-jdk state=latest
+
+  - name: Install jenkins
+    apt: name=jenkins state=latest update_cache=yes
+
+  - name: Run jenkins' service and put it to autorun
+    service: name=jenkins state=started enabled=yes
+
+  - name: check if initialAdminPassword file exists
+    stat: path=/var/lib/jenkins/secrets/initialAdminPassword
+    register: initialAdminPassword_status
+
+  - block:  # if initialAdminPassword exists  
+    - name: Executing shell to read the initialAdminPassword
+      shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+      register: result
+
+    - name: Print initialAdminPassword
+      debug: var=result.stdout_lines
+
+    when: initialAdminPassword_status.stat.exists == True

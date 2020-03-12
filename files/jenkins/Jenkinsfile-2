@@ -1,0 +1,10 @@
+pipeline {
+  agent { label 'PROD_SERVERS' }
+  stages {
+    stage('Remove Unused docker image') {
+      steps{
+        sh "sudo /home/ubuntu/deploy.sh ${params.bs_version}"
+      }
+    }
+  }
+}

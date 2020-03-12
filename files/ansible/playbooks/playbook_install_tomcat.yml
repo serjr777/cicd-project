@@ -1,0 +1,30 @@
+---
+- name: Install Tomcat server
+  hosts: STAGING_SERVERS,PROD_SERVERS
+  become: yes
+
+  tasks:
+  - name: Check LINUX Version
+    debug: var=ansible_os_family 
+  
+  - block:        # ===== Block for Ubuntu ======
+    - name: Install Java for Ubuntu
+      apt: name=default-jre state=latest
+  
+    - name: Install Tomcat for ubuntu
+      apt: name=tomcat8 state=latest
+    
+    - name: Start Tomcat service for ubuntu
+      service: name=tomcat8 state=started enabled=yes
+    
+    when: ansible_os_family == "Debian"  
+    
+  - block:        # ===== Block for RedHat ======
+    
+    - name: Install tomcat for RedHat
+      yum: name=tomcat state=latest
+    
+    - name: Start tomcat service for RedHat
+      service: name=tomcat state=started enabled=yes
+
+    when: ansible_os_family == "RedHat"  

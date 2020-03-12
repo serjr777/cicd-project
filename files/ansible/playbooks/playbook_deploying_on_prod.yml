@@ -1,0 +1,21 @@
+---
+- name: Deploying of bookstore
+  hosts: PROD_SERVERS
+  become: yes
+  vars_prompt:
+
+  - name: version
+    prompt: "What version of bookstore to deploy?"
+    private: no
+
+  tasks:
+  - name: Run script on Production server
+    shell: '/home/ubuntu/deploy.sh {{ version }}'
+
+  - name: Check version
+    shell: 'docker ps -a'
+    register: shell_result
+
+  - debug:
+      var: shell_result.stdout_lines
+

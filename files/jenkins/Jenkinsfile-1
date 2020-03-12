@@ -1,0 +1,42 @@
+pipeline {
+  environment {
+    registry = "serjr777/bookstore"
+    registryCredential = 'dockerhub'
+    dockerImage = ''
+  }
+  agent { label 'TEST_SERVERS' }
+  stages {
+    stage('Building image') {
+      steps{
+        script {
+          dockerImage = docker.build(registry + ":$BUILD_NUMBER", "/home/ubuntu/jenkins_slave/workspace")
+        }
+      }
+    }
+    
+    stage('Deploy Image') {
+      steps{
+         script {
+            docker.withRegistry( '', registryCredential ) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+    stage('Remove Unused docker image') {
+      steps{
+        sh "docker rmi $registry:$BUILD_NUMBER"
+      }
+    }
+    
+    stage('Invoke Job') {
+      steps{
+        build job: 'DeployToProduction', 
+        parameters: [
+            string(name: 'bs_version', value: String.valueOf("${currentBuild.previousBuild.getNumber()}"))
+        ]
+      }
+    }
+    
+  }
+}
